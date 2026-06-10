@@ -11,6 +11,10 @@ st.set_page_config(page_title="Fuel Route Optimizer Demo", layout="wide")
 st.title("🛣️ Fuel Route Optimizer Demo")
 st.markdown("Visualizer for the Fuel Route Optimization API.")
 
+# Initialize session state to store API results
+if "api_data" not in st.session_state:
+    st.session_state.api_data = None
+
 with st.sidebar:
     st.header("Plan Your Trip")
     start_loc = st.text_input("Start Location", value="San Francisco, CA")
@@ -36,67 +40,74 @@ if plan_button:
             data = response.json()
             
             if response.status_code == 200:
-                route_data = data["route"]
-                fuel_plan = data["fuel_plan"]
-                meta = data["meta"]
-                
-                # --- Metrics ---
-                col1, col2, col3, col4 = st.columns(4)
-                col1.metric("Total Fuel Cost", f"${fuel_plan['total_cost']:.2f}")
-                col2.metric("Total Distance", f"{route_data['distance_miles']:.1f} mi")
-                col3.metric("Total Gallons", f"{fuel_plan['total_gallons']:.1f} gal")
-                col4.metric("Cache Hit", str(meta['cache_hit']))
-                
-                st.success(f"Route calculated successfully via {route_data['provider']}!")
-                
-                # --- Map Rendering ---
-                decoded_path = polyline.decode(route_data["polyline"])
-                
-                # Center map on the middle of the route
-                mid_point = decoded_path[len(decoded_path) // 2]
-                m = folium.Map(location=mid_point, zoom_start=5)
-                
-                # Draw the highway route
-                folium.PolyLine(
-                    decoded_path,
-                    weight=5,
-                    color='blue',
-                    opacity=0.7
-                ).add_to(m)
-                
-                # Add Start and End markers
-                folium.Marker(decoded_path[0], popup="Start", icon=folium.Icon(color="green", icon="play")).add_to(m)
-                folium.Marker(decoded_path[-1], popup="End", icon=folium.Icon(color="red", icon="stop")).add_to(m)
-                
-                # Add Fuel Stops
-                st.subheader("Optimal Fuel Stops")
-                stops_data = []
-                for stop in fuel_plan["stops"]:
-                    # Add to map
-                    popup_text = f"<b>{stop['name']}</b><br>Price: ${stop['price_per_gallon']:.2f}/gal<br>Buy: {stop['gallons_purchased']:.1f} gal<br>Cost: ${stop['cost']:.2f}"
-                    folium.Marker(
-                        location=[stop["lat"], stop["lng"]],
-                        popup=popup_text,
-                        icon=folium.Icon(color="orange", icon="gas-pump", prefix="fa")
-                    ).add_to(m)
-                    
-                    # Add to table data
-                    stops_data.append({
-                        "Station": stop["name"],
-                        "Mile Marker": f"{stop['distance_along_route_miles']:.1f}",
-                        "Price/Gal": f"${stop['price_per_gallon']:.2f}",
-                        "Gallons Bought": f"{stop['gallons_purchased']:.1f}",
-                        "Cost": f"${stop['cost']:.2f}"
-                    })
-                
-                # Render the map
-                st_folium(m, width=1200, height=600)
-                
-                # Render the data table
-                st.table(stops_data)
-                
+                # Save the successful data to session state
+                st.session_state.api_data = data
             else:
+                st.session_state.api_data = None
                 st.error(f"API Error: {data.get('error', {}).get('message', 'Unknown Error')}")
                 
         except requests.exceptions.ConnectionError:
+            st.session_state.api_data = None
             st.error("Failed to connect to the backend API. Is the Django server running on localhost:8000?")
+
+# Render the UI if we have data in the session state
+if st.session_state.api_data is not None:
+    data = st.session_state.api_data
+    route_data = data["route"]
+    fuel_plan = data["fuel_plan"]
+    meta = data["meta"]
+    
+    # --- Metrics ---
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Fuel Cost", f"${fuel_plan['total_cost']:.2f}")
+    col2.metric("Total Distance", f"{route_data['distance_miles']:.1f} mi")
+    col3.metric("Total Gallons", f"{fuel_plan['total_gallons']:.1f} gal")
+    col4.metric("Cache Hit", str(meta['cache_hit']))
+    
+    st.success(f"Route calculated successfully via {route_data['provider']}!")
+    
+    # --- Map Rendering ---
+    decoded_path = polyline.decode(route_data["polyline"])
+    
+    # Center map on the middle of the route
+    mid_point = decoded_path[len(decoded_path) // 2]
+    m = folium.Map(location=mid_point, zoom_start=5)
+    
+    # Draw the highway route
+    folium.PolyLine(
+        decoded_path,
+        weight=5,
+        color='blue',
+        opacity=0.7
+    ).add_to(m)
+    
+    # Add Start and End markers
+    folium.Marker(decoded_path[0], popup="Start", icon=folium.Icon(color="green", icon="play")).add_to(m)
+    folium.Marker(decoded_path[-1], popup="End", icon=folium.Icon(color="red", icon="stop")).add_to(m)
+    
+    # Add Fuel Stops
+    st.subheader("Optimal Fuel Stops")
+    stops_data = []
+    for stop in fuel_plan["stops"]:
+        # Add to map
+        popup_text = f"<b>{stop['name']}</b><br>Price: ${stop['price_per_gallon']:.2f}/gal<br>Buy: {stop['gallons_purchased']:.1f} gal<br>Cost: ${stop['cost']:.2f}"
+        folium.Marker(
+            location=[stop["lat"], stop["lng"]],
+            popup=popup_text,
+            icon=folium.Icon(color="orange", icon="gas-pump", prefix="fa")
+        ).add_to(m)
+        
+        # Add to table data
+        stops_data.append({
+            "Station": stop["name"],
+            "Mile Marker": f"{stop['distance_along_route_miles']:.1f}",
+            "Price/Gal": f"${stop['price_per_gallon']:.2f}",
+            "Gallons Bought": f"{stop['gallons_purchased']:.1f}",
+            "Cost": f"${stop['cost']:.2f}"
+        })
+    
+    # Render the map (we pass returned_objects=[] to prevent it from passing data back and triggering a re-run unnecessarily)
+    st_folium(m, width=1200, height=600, returned_objects=[])
+    
+    # Render the data table
+    st.table(stops_data)
