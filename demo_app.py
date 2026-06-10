@@ -85,19 +85,11 @@ if st.session_state.api_data is not None:
     folium.Marker(decoded_path[0], popup="Start", icon=folium.Icon(color="green", icon="play")).add_to(m)
     folium.Marker(decoded_path[-1], popup="End", icon=folium.Icon(color="red", icon="stop")).add_to(m)
     
-    # Add Fuel Stops
     st.subheader("Optimal Fuel Stops")
+    
+    # Prepare table data
     stops_data = []
     for stop in fuel_plan["stops"]:
-        # Add to map
-        popup_text = f"<b>{stop['name']}</b><br>Price: ${stop['price_per_gallon']:.2f}/gal<br>Buy: {stop['gallons_purchased']:.1f} gal<br>Cost: ${stop['cost']:.2f}"
-        folium.Marker(
-            location=[stop["lat"], stop["lng"]],
-            popup=popup_text,
-            icon=folium.Icon(color="orange", icon="gas-pump", prefix="fa")
-        ).add_to(m)
-        
-        # Add to table data
         stops_data.append({
             "Station": stop["name"],
             "Mile Marker": f"{stop['distance_along_route_miles']:.1f}",
@@ -105,9 +97,46 @@ if st.session_state.api_data is not None:
             "Gallons Bought": f"{stop['gallons_purchased']:.1f}",
             "Cost": f"${stop['cost']:.2f}"
         })
+        
+    # Check if a row is selected in the table
+    selected_idx = None
+    if "station_table" in st.session_state:
+        selected_rows = st.session_state.station_table.get("selection", {}).get("rows", [])
+        if selected_rows:
+            selected_idx = selected_rows[0]
+
+    # Add Fuel Stops to Map
+    for idx, stop in enumerate(fuel_plan["stops"]):
+        is_selected = (idx == selected_idx)
+        
+        # Highlight the selected station
+        color = "red" if is_selected else "orange"
+        icon_type = "star" if is_selected else "gas-pump"
+        
+        popup_text = f"<b>{stop['name']}</b><br>Price: ${stop['price_per_gallon']:.2f}/gal<br>Buy: {stop['gallons_purchased']:.1f} gal<br>Cost: ${stop['cost']:.2f}"
+        
+        marker = folium.Marker(
+            location=[stop["lat"], stop["lng"]],
+            popup=popup_text,
+            icon=folium.Icon(color=color, icon=icon_type, prefix="fa")
+        )
+        marker.add_to(m)
+        
+        # If this is the selected station, center the map on it
+        if is_selected:
+            m.location = [stop["lat"], stop["lng"]]
+            m.zoom_start = 8
+
+    # Render the map 
+    st_folium(m, width=1200, height=500, returned_objects=[])
     
-    # Render the map (we pass returned_objects=[] to prevent it from passing data back and triggering a re-run unnecessarily)
-    st_folium(m, width=1200, height=600, returned_objects=[])
-    
-    # Render the data table
-    st.table(stops_data)
+    # Render the interactive data table
+    st.markdown("👇 **Click on any row below to highlight and zoom to that station on the map.**")
+    st.dataframe(
+        stops_data,
+        key="station_table",
+        on_select="rerun",
+        selection_mode="single-row",
+        use_container_width=True,
+        hide_index=True
+    )
