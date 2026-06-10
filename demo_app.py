@@ -15,10 +15,20 @@ st.markdown("Visualizer for the Fuel Route Optimization API.")
 if "api_data" not in st.session_state:
     st.session_state.api_data = None
 
+KNOWN_CITIES = [
+    "San Francisco, CA", "Los Angeles, CA", "San Diego, CA", "Sacramento, CA",
+    "Las Vegas, NV", "Phoenix, AZ", "Denver, CO", "Salt Lake City, UT",
+    "Dallas, TX", "Houston, TX", "Austin, TX", "Oklahoma City, OK",
+    "Chicago, IL", "St Louis, MO", "Kansas City, MO", "New York, NY",
+    "Boston, MA", "Atlanta, GA", "Miami, FL", "Seattle, WA",
+    "Portland, OR", "Minneapolis, MN", "Nashville, TN", "Memphis, TN",
+    "Albuquerque, NM", "Amarillo, TX", "Flagstaff, AZ", "Barstow, CA"
+]
+
 with st.sidebar:
     st.header("Plan Your Trip")
-    start_loc = st.text_input("Start Location", value="San Francisco, CA")
-    end_loc = st.text_input("End Location", value="Denver, CO")
+    start_loc = st.selectbox("Start Location", KNOWN_CITIES, index=0)
+    end_loc = st.selectbox("End Location", KNOWN_CITIES, index=6)
     
     # Optional parameters we can send to our new smart cache
     max_range = st.slider("Vehicle Max Range (miles)", 100, 1000, 500, step=50)
