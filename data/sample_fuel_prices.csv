@@ -1,0 +1,16 @@
+OPIS Truckstop ID,Truckstop Name,Address,City,State,Rack ID,Retail Price
+1001,Bay Area Travel Center,100 Bayshore Blvd,San Francisco,CA,512,3.959
+1002,Capital City Fuel,4500 Folsom Blvd,Sacramento,CA,512,3.789
+1003,High Desert Pumps,I-15 Exit 178,Barstow,CA,488,3.499
+1004,Sin City Truck Stop,2200 S Las Vegas Blvd,Las Vegas,NV,455,3.689
+1005,Valley of the Sun Fuel,3000 E Van Buren St,Phoenix,AZ,401,3.879
+1006,Route 66 Travel Plaza,I-40 Exit 192,Flagstaff,AZ,401,3.599
+1007,High Plains Fuel,I-40 Exit 75,Amarillo,TX,377,3.429
+1008,Big D Truckstop,8000 R L Thornton Fwy,Dallas,TX,360,3.549
+1009,Bayou City Fuel,5500 Gulf Fwy,Houston,TX,360,3.609
+1010,Sooner Stop,I-40 Exit 157,Oklahoma City,OK,355,3.469
+1011,Gateway Arch Fuel,3500 Market St,St Louis,MO,330,3.529
+1012,Mile High Fuel,4800 Colorado Blvd,Denver,CO,410,3.749
+1013,Crossroads Truck Plaza,2100 Wyandotte St,Kansas City,MO,330,3.499
+1014,Windy City Fuel,1200 S Lake Shore Dr,Chicago,IL,300,3.899
+1015,Music City Truckstop,1500 Broadway,Nashville,TN,288,3.479

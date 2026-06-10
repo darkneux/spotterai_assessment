@@ -1,0 +1,9 @@
+Django>=5.1,<6.0
+djangorestframework>=3.15
+django-environ>=0.11
+requests>=2.31
+drf-spectacular>=0.27
+
+# Optional (enabled via environment, not required to run the default setup):
+#   psycopg[binary]>=3.1   # PostgreSQL backend
+#   redis>=5.0             # Redis-backed route cache
