@@ -62,11 +62,11 @@ if plan_button:
                     weight=5,
                     color='blue',
                     opacity=0.7
-                ).addTo(m)
+                ).add_to(m)
                 
                 # Add Start and End markers
-                folium.Marker(decoded_path[0], popup="Start", icon=folium.Icon(color="green", icon="play")).addTo(m)
-                folium.Marker(decoded_path[-1], popup="End", icon=folium.Icon(color="red", icon="stop")).addTo(m)
+                folium.Marker(decoded_path[0], popup="Start", icon=folium.Icon(color="green", icon="play")).add_to(m)
+                folium.Marker(decoded_path[-1], popup="End", icon=folium.Icon(color="red", icon="stop")).add_to(m)
                 
                 # Add Fuel Stops
                 st.subheader("Optimal Fuel Stops")
@@ -78,7 +78,7 @@ if plan_button:
                         location=[stop["lat"], stop["lng"]],
                         popup=popup_text,
                         icon=folium.Icon(color="orange", icon="gas-pump", prefix="fa")
-                    ).addTo(m)
+                    ).add_to(m)
                     
                     # Add to table data
                     stops_data.append({
