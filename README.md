@@ -39,20 +39,15 @@ This will open a beautiful interactive map in your browser where you can:
 
 ---
 
-### Loading the real dataset (For Production)
+### ⚠️ Reviewer Convenience: Pre-loaded Database
 
-The assessment CSV (`fuel-prices-for-be-assessment.csv`, ~8,151 rows) is **not**
-checked in. Drop it in `data/` and run:
+**Notice**: Committing a `db.sqlite3` database to version control is *not* a standard or correct production practice. 
 
-```bash
-# 1. Import the raw text data into the database
-python manage.py import_stations data/fuel-prices-for-be-assessment.csv --truncate
+However, to save the reviewers from waiting **~2.5 hours** for the Nominatim geocoder (which is strictly rate-limited to 1 request per second) to process all 8,151 rows of the assessment CSV, I have included a pre-geocoded `db.sqlite3` file in this repository. 
 
-# 2. Geocode the addresses into Lat/Lng coordinates (Required)
-# NOTE: Nominatim is strictly rate-limited to 1 req/sec. This will take ~2.5 hours.
-# Use tmux or nohup to run this in the background:
-nohup python manage.py geocode_stations --provider nominatim --sleep 1.1 > geocode.log &
-```
+You do **not** need to run the import or geocoding steps to test the full assessment dataset. The API and the Streamlit demo are ready to use out of the box with over 6,500 real station coordinates already loaded.
+
+*(If you wish to run the pipeline from scratch anyway, you can drop the CSV in `data/` and run `python manage.py import_stations data/fuel-prices-for-be-assessment.csv --truncate` followed by `python manage.py geocode_stations --provider nominatim --sleep 1.1`).*
 
 ---
 

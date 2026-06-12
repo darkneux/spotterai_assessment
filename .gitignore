@@ -1,7 +1,6 @@
 __pycache__/
 *.py[cod]
 .env
-db.sqlite3
 .venv/
 venv/
 *.egg-info/
